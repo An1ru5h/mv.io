@@ -177,6 +177,9 @@ function App() {
           border: 1px solid rgba(255, 255, 255, 0.25);
           transition: none;
           margin-top: 5px;
+          max-width: 220px; /* Further reduced width */
+          min-width: 140px; /* Further reduced min width */
+          padding: 8px 6px; /* Further reduced padding */
         }
         .glass-box-gradient-bg::before {
           content: '';
@@ -292,13 +295,13 @@ function App() {
           top: 20px;
           left: 20px;
           z-index: 10;
-          width: 50px;
-          height: 50px;
+          width: 24px; /* Further reduced logo size */
+          height: 24px;
           object-fit: contain;
         }
         .gradient-box-top {
-          width: 180px;
-          height: 35px;
+          width: 80px; /* Further reduced width */
+          height: 18px; /* Further reduced height */
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -309,9 +312,9 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.9rem;
+          font-size: 0.5rem; /* Further reduced font size */
           text-align: center;
-          padding: 10px;
+          padding: 2px; /* Further reduced padding */
           transform-style: preserve-3d;
           transform: perspective(500px) rotateX(7deg) rotateY(0deg);
           animation: boxGradientShift 4s linear infinite;
@@ -326,6 +329,14 @@ function App() {
         .join-waitlist-button:hover {
           background-color:rgb(0, 21, 156);
           color: white;
+        }
+        /* Reduce X (close) button size if present */
+        .close-btn, .close-button, .x-btn {
+          font-size: 0.7rem !important;
+          width: 16px !important;
+          height: 16px !important;
+          top: 2px !important;
+          right: 2px !important;
         }
       `}</style>
 
@@ -396,7 +407,7 @@ function App() {
           </div>
 
           {/* Social Icons Container */}
-        <div className="mt-1 flex items-center justify-center gap-2">
+          <div className="mt-1 flex items-center justify-center gap-2">
             {/* X (formerly Twitter) Icon */}
             <div className="flex items-center justify-center rounded-md liquid-glass-icon-bg z-10">
               <a href="https://x.com/anirudhbabu_" target="_blank" rel="noopener noreferrer" aria-label="Visit us on X (formerly Twitter)">
@@ -426,14 +437,13 @@ function App() {
             </a>
           </div>
 
-
           {/* Playback Controls Container - slides in from the right */}
           <div className="playback-controls-container">
             {/* Backward Button */}
             <button onClick={handlePrevTrack} aria-label="Previous track">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
                 <path d="M15.41 16.59L10.83 12L15.41 7.41L14 6L8 12L14 18L15.41 16.59Z"/>
-                </svg>
+              </svg>
             </button>
             {/* Play/Pause Button */}
             <button onClick={togglePlayPause} aria-label={isPlaying ? "Pause music" : "Play music"}>
@@ -450,7 +460,7 @@ function App() {
             {/* Forward Button */}
             <button onClick={handleNextTrack} aria-label="Next track">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
-                  <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
+                <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
               </svg>
             </button>
           </div>
