@@ -177,18 +177,30 @@ function App() {
           border: 1px solid rgba(255, 255, 255, 0.25);
           transition: none;
           margin-top: 5px;
-          max-width: 320px; /* Restore previous width */
-          min-width: 220px; /* Restore previous min width */
-          padding: 16px 12px; /* Restore previous padding */
         }
-        .glass-box-gradient-bg::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; width: 100%; height: 100%;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
-          mix-blend-mode: overlay;
-          pointer-events: none;
-          opacity: 0.8;
+        .gradient-box-top {
+          width: 180px;
+          height: 35px;
+          background: linear-gradient(to top right, #66A1F3, #22C9A6);
+          background-size: 200% auto;
+          border-radius: 20px;
+          margin-bottom: 0px;
+          box-shadow:0 0 0 2px rgba(255, 255, 255, 0.1);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          color: white;
+          font-weight: normal;
+          font-size: 0.9rem;
+          text-align: center;
+          padding: 10px;
+          transform-style: preserve-3d;
+          transform: perspective(500px) rotateX(7deg) rotateY(0deg);
+          animation: boxGradientShift 4s linear infinite;
+        }
+        .top-left-logo {
+          width: 50px;
+          height: 50px;
         }
         .liquid-glass-icon-bg {
           background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(220, 220, 200, 0.15));
@@ -295,13 +307,13 @@ function App() {
           top: 20px;
           left: 20px;
           z-index: 10;
-          width: 36px; /* Restore previous logo size */
-          height: 36px;
+          width: 50px; /* Restore previous logo size */
+          height: 50px;
           object-fit: contain;
         }
         .gradient-box-top {
-          width: 120px; /* Restore previous width */
-          height: 28px; /* Restore previous height */
+          width: 180px;
+          height: 35px;
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -312,9 +324,9 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.7rem; /* Restore previous font size */
+          font-size: 0.9rem; /* Restore previous font size */
           text-align: center;
-          padding: 6px; /* Restore previous padding */
+          padding: 10px; /* Restore previous padding */
           transform-style: preserve-3d;
           transform: perspective(500px) rotateX(7deg) rotateY(0deg);
           animation: boxGradientShift 4s linear infinite;
@@ -332,11 +344,11 @@ function App() {
         }
         /* Reduce X (close) button size if present */
         .close-btn, .close-button, .x-btn {
-          font-size: 1rem !important;
-          width: 24px !important;
-          height: 24px !important;
-          top: 6px !important;
-          right: 6px !important;
+          font-size: 1.25rem !important;
+          width: 32px !important;
+          height: 32px !important;
+          top: 10px !important;
+          right: 10px !important;
         }
       `}</style>
 
