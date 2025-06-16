@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/mv-io/static/css/main.74609b44.css",
+    "main.js": "/mv-io/static/js/main.b48c8e49.js",
+    "index.html": "/mv-io/index.html",
+    "main.74609b44.css.map": "/mv-io/static/css/main.74609b44.css.map",
+    "main.b48c8e49.js.map": "/mv-io/static/js/main.b48c8e49.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.74609b44.css",
+    "static/js/main.b48c8e49.js"
+  ]
+}
