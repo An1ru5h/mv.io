@@ -177,9 +177,9 @@ function App() {
           border: 1px solid rgba(255, 255, 255, 0.25);
           transition: none;
           margin-top: 5px;
-          max-width: 220px; /* Further reduced width */
-          min-width: 140px; /* Further reduced min width */
-          padding: 8px 6px; /* Further reduced padding */
+          max-width: 320px; /* Restore previous width */
+          min-width: 220px; /* Restore previous min width */
+          padding: 16px 12px; /* Restore previous padding */
         }
         .glass-box-gradient-bg::before {
           content: '';
@@ -295,13 +295,13 @@ function App() {
           top: 20px;
           left: 20px;
           z-index: 10;
-          width: 24px; /* Further reduced logo size */
-          height: 24px;
+          width: 36px; /* Restore previous logo size */
+          height: 36px;
           object-fit: contain;
         }
         .gradient-box-top {
-          width: 80px; /* Further reduced width */
-          height: 18px; /* Further reduced height */
+          width: 120px; /* Restore previous width */
+          height: 28px; /* Restore previous height */
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -312,9 +312,9 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.5rem; /* Further reduced font size */
+          font-size: 0.7rem; /* Restore previous font size */
           text-align: center;
-          padding: 2px; /* Further reduced padding */
+          padding: 6px; /* Restore previous padding */
           transform-style: preserve-3d;
           transform: perspective(500px) rotateX(7deg) rotateY(0deg);
           animation: boxGradientShift 4s linear infinite;
@@ -332,11 +332,11 @@ function App() {
         }
         /* Reduce X (close) button size if present */
         .close-btn, .close-button, .x-btn {
-          font-size: 0.7rem !important;
-          width: 16px !important;
-          height: 16px !important;
-          top: 2px !important;
-          right: 2px !important;
+          font-size: 1rem !important;
+          width: 24px !important;
+          height: 24px !important;
+          top: 6px !important;
+          right: 6px !important;
         }
       `}</style>
 
