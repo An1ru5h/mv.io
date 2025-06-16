@@ -160,6 +160,8 @@ function App() {
           color: transparent;
           line-height: 1.2;
           animation: gradientShift 2s linear infinite;
+          font-weight: 400 !important; /* Reduce boldness */
+          margin-bottom: 10px !important; /* Lower the header */
         }
         .gradient-text-subheading {
           background: linear-gradient(to top, #333333, #cccccc, #ffffff);
@@ -177,10 +179,13 @@ function App() {
           border: 1px solid rgba(255, 255, 255, 0.25);
           transition: none;
           margin-top: 5px;
+          max-width: 220px; /* Reduced width */
+          min-width: 140px; /* Reduced min width */
+          padding: 8px 6px; /* Reduced padding */
         }
         .gradient-box-top {
-          width: 180px;
-          height: 35px;
+          width: 90px; /* Reduced width */
+          height: 18px; /* Reduced height */
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -191,16 +196,16 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.9rem;
+          font-size: 0.5rem; /* Reduced font size */
           text-align: center;
-          padding: 10px;
+          padding: 2px; /* Reduced padding */
           transform-style: preserve-3d;
           transform: perspective(500px) rotateX(7deg) rotateY(0deg);
           animation: boxGradientShift 4s linear infinite;
         }
         .top-left-logo {
-          width: 50px;
-          height: 50px;
+          width: 24px; /* Further reduced logo size */
+          height: 24px;
         }
         .liquid-glass-icon-bg {
           background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(220, 220, 200, 0.15));
@@ -312,8 +317,8 @@ function App() {
           object-fit: contain;
         }
         .gradient-box-top {
-          width: 180px;
-          height: 35px;
+          width: 90px; /* Reduced width */
+          height: 18px; /* Reduced height */
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -324,9 +329,9 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.9rem; /* Restore previous font size */
+          font-size: 0.5rem; /* Reduced font size */
           text-align: center;
-          padding: 10px; /* Restore previous padding */
+          padding: 2px; /* Reduced padding */
           transform-style: preserve-3d;
           transform: perspective(500px) rotateX(7deg) rotateY(0deg);
           animation: boxGradientShift 4s linear infinite;
@@ -337,6 +342,9 @@ function App() {
           background-color: white;
           color: black;
           transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+          font-size: 0.7rem;
+          padding: 4px 8px; /* Reduced padding */
+          height: 28px; /* Reduced height */
         }
         .join-waitlist-button:hover {
           background-color:rgb(0, 21, 156);
@@ -344,11 +352,11 @@ function App() {
         }
         /* Reduce X (close) button size if present */
         .close-btn, .close-button, .x-btn {
-          font-size: 1.25rem !important;
-          width: 32px !important;
-          height: 32px !important;
-          top: 10px !important;
-          right: 10px !important;
+          font-size: 0.7rem !important;
+          width: 16px !important;
+          height: 16px !important;
+          top: 2px !important;
+          right: 2px !important;
         }
       `}</style>
 
@@ -366,7 +374,7 @@ function App() {
         />
 
         <main className="z-10 flex flex-col items-center w-full">
-          <h1 className="text-6xl md:text-7xl font-semibold mb-20 leading-tight gradient-text-header text-center">
+          <h1 className="text-5xl md:text-6xl font-normal mb-10 leading-tight gradient-text-header text-center">
             Build <span className="font-figma-hand">Smarter</span>. Launch <span className="font-figma-hand">Faster</span>.
           </h1>
 
@@ -399,6 +407,11 @@ function App() {
                   className="w-full sm:w-56 px-4 py-2 h-10 rounded-lg bg-black bg-opacity-30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-300"
                   required
                   aria-label="Email address for waitlist"
+                  style={{
+                    fontSize: '0.7rem',
+                    padding: '4px 8px',
+                    height: '28px',
+                  }}
                 />
                 <button
                   type="submit"
