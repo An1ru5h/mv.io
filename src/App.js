@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import confetti from 'canvas-confetti';
-import pb from './pbClient'; // PocketBase client for interacting with the database
+import pb from  './pbClient.js'; // Import the PocketBase client library
 function App() {
   // State variables for the waitlist form
   const [email, setEmail] = useState('');
@@ -8,61 +8,53 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
-  // State variable for the music player's play/pause status
-  const [isPlaying, setIsPlaying] = useState(true); // Music starts playing by default
-
-  // State for the current track index in the playlist
-  const [currentTrackIndex, setCurrentTrack] = useState(0);
-
-  // Array of sample music tracks with their audio source URLs
-  const tracks = useRef([
-    { audioSrc: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
-    { audioSrc: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
-    { audioSrc: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
-    { audioSrc: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
-    { audioSrc: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3' },
-  ]);
-
-  // URL for the YouTube Music logo used as the playlist cover
-  const playlistCoverImage = 'https://upload.wikimedia.org/wikipedia/commons/d/d8/YouTubeMusic_Logo.png';
+  // State variable for the music player's play/pause status (now mute/unmute)
+  // Set to false initially, meaning the audio is muted and not "actively playing" to the user.
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Ref to the Audio HTML element for controlling playback
-  const audioRef = useRef(new Audio(tracks.current.length > 0 ? tracks.current[currentTrackIndex].audioSrc : ''));
+  // Using a single default track for background audio
+  const audioRef = useRef(new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'));
 
   useEffect(() => {
-    if (tracks.current.length > 0) {
-      audioRef.current.src = tracks.current[currentTrackIndex].audioSrc;
-      audioRef.current.muted = false;
+    // Set audio to loop for continuous background music
+    audioRef.current.loop = true;
+    audioRef.current.muted = true; // Ensure it starts muted to avoid autoplay issues
 
-      const handleAudioEnded = () => {
-        handleNextTrack();
-      };
+    const handleAudioEnded = () => {
+      // This listener is mostly for playlist scenarios.
+      // Since we have a single looping background track, it will just loop.
+    };
 
-      audioRef.current.addEventListener('ended', handleAudioEnded);
+    audioRef.current.addEventListener('ended', handleAudioEnded);
 
-      return () => {
-        audioRef.current.pause();
-        audioRef.current.removeEventListener('ended', handleAudioEnded);
-      };
-    } else {
+    // Load the audio but do not attempt to play it unmuted here.
+    // Playback (unmuting) will be triggered by user interaction.
+    audioRef.current.load();
+
+
+    return () => {
       audioRef.current.pause();
-      audioRef.current.src = '';
-    }
-  }, [currentTrackIndex]);
+      audioRef.current.removeEventListener('ended', handleAudioEnded);
+    };
+  }, []); // Empty dependency array means this runs once on mount
 
   useEffect(() => {
-    if (tracks.current.length > 0) {
-      if (isPlaying) {
-        audioRef.current.play().catch(e => {
-          console.error("Error playing audio (user interaction might be required):", e);
-        });
-      } else {
-        audioRef.current.pause();
-      }
+    // This effect handles changes to the `isPlaying` state (user clicking mute/unmute button)
+    if (isPlaying) {
+      audioRef.current.muted = false; // Unmute
+      // Attempt to play. This will only succeed if triggered by user gesture (like the button click).
+      audioRef.current.play().catch(e => {
+        console.error("Error attempting to play audio:", e);
+        // If play fails (e.g., due to no user gesture on first interaction),
+        // revert isPlaying state to reflect actual muted state.
+        setIsPlaying(false);
+      });
     } else {
-      audioRef.current.pause();
+      audioRef.current.muted = true; // Mute
     }
-  }, [isPlaying]);
+  }, [isPlaying]); // React to changes in isPlaying state
+
 
   // Handles the submission of the waitlist form
   const handleSubmit = async (e) => {
@@ -78,6 +70,7 @@ function App() {
     }
 
     try {
+      // Attempt to create a new record in PocketBase
       await pb.collection('waitlist').create({ email });
 
       setMessage("Thanks for your interest! We'll keep you updated.");
@@ -105,27 +98,10 @@ function App() {
     if (message) setMessage('');
   };
 
-  const togglePlayPause = (e) => {
+  // Toggles mute/unmute
+  const toggleMuteUnmute = (e) => {
     e.preventDefault();
-    if (tracks.current.length > 0) {
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleNextTrack = (e) => {
-    if (e) e.preventDefault();
-    if (tracks.current.length > 0) {
-      setCurrentTrack(prevIndex => (prevIndex + 1) % tracks.current.length);
-      setIsPlaying(true);
-    }
-  };
-
-  const handlePrevTrack = (e) => {
-    if (e) e.preventDefault();
-    if (tracks.current.length > 0) {
-      setCurrentTrack(prevIndex => (prevIndex - 1 + tracks.current.length) % tracks.current.length);
-      setIsPlaying(true);
-    }
+    setIsPlaying(!isPlaying);
   };
 
   return (
@@ -176,16 +152,15 @@ function App() {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
           overflow: hidden;
           border-radius: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.25);
+          /* Removed border: 1px solid rgba(255, 255, 255, 0.25); */
           transition: none;
           margin-top: 5px;
-          max-width: 220px; /* Reduced width */
-          min-width: 140px; /* Reduced min width */
-          padding: 8px 6px; /* Reduced padding */
+          /* max-w and min-w now handled by Tailwind classes in JSX */
+          /* padding is handled by Tailwind classes in JSX */
         }
         .gradient-box-top {
-          width: 90px; /* Reduced width */
-          height: 18px; /* Reduced height */
+          width: 120px; /* Increased width */
+          height: 25px; /* Increased height */
           background: linear-gradient(to top right, #66A1F3, #22C9A6);
           background-size: 200% auto;
           border-radius: 20px;
@@ -196,140 +171,7 @@ function App() {
           align-items: center;
           color: white;
           font-weight: normal;
-          font-size: 0.5rem; /* Reduced font size */
-          text-align: center;
-          padding: 2px; /* Reduced padding */
-          transform-style: preserve-3d;
-          transform: perspective(500px) rotateX(7deg) rotateY(0deg);
-          animation: boxGradientShift 4s linear infinite;
-        }
-        .top-left-logo {
-          width: 24px; /* Further reduced logo size */
-          height: 24px;
-        }
-        .liquid-glass-icon-bg {
-          background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.2), rgba(220, 220, 200, 0.15));
-          backdrop-filter: blur(3px);
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          width: 50px;
-          height: 50px;
-          border: 1px solid rgba(255, 255, 255, 0.25);
-        }
-        .liquid-glass-icon-bg svg {
-          width: 32px;
-          height: 32px;
-        }
-        .success-animation {
-          animation: popFadeIn 0.8s ease-in-out forwards;
-        }
-        @keyframes popFadeIn {
-          0% { opacity: 0; transform: scale(0.8); }
-          60% { opacity: 1; transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        .music-component-outer {
-          position: fixed;
-          bottom: 20px;
-          left: 20px;
-          transform: translateX(0);
-          z-index: 20;
-          padding: 7px;
-          display: flex;
-          align-items: center;
-          border-radius: 0.5rem;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-          overflow: hidden;
-          background: transparent;
-          transition: width 0.3s ease-in-out;
-          width: calc(54px + 70px + 0.5rem);
-          height: 54px;
-          justify-content: flex-start;
-        }
-        .music-component-outer:hover {
-          width: calc(54px + 0.5rem + 96px);
-          justify-content: flex-start;
-        }
-        .playlist-image-wrapper {
-          width:0;
-          height: 40px;
-          flex-shrink: 0;
-          border-radius: 0.5rem;
-          overflow: hidden;
-          background: transparent;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          transition: background 0.3s ease-in-out;
-        }
-        .music-component-outer:hover .playlist-image-wrapper {
-          background: transparent;
-        }
-        .playlist-image-wrapper a {
-            cursor: default;
-        }
-        .playlist-image-wrapper img {
-            width: 85%;
-            height: 85%;
-            object-fit: contain;
-            border-radius: 0.5rem;
-        }
-        .playback-controls-container {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.5rem;
-          width: 0;
-          opacity: 0;
-          overflow: hidden;
-          transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out, margin-left 0.3s ease-in-out;
-          flex-shrink: 0;
-          margin-left: 0rem;
-          background: transparent;
-        }
-        .playback-controls-container button {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .playback-controls-container svg {
-          width: 24px;
-          height: 24px;
-          transition: transform 0.2s ease-in-out;
-        }
-        .playback-controls-container button:hover svg {
-          transform: scale(1.1);
-        }
-        .playback-controls-container button:nth-child(2) svg {
-          width: 32px;
-          height: 32px;
-        }
-        .top-left-logo {
-          position: absolute;
-          top: 20px;
-          left: 20px;
-          z-index: 10;
-          width: 50px; /* Restore previous logo size */
-          height: 50px;
-          object-fit: contain;
-        }
-        .gradient-box-top {
-          width: 90px; /* Reduced width */
-          height: 18px; /* Reduced height */
-          background: linear-gradient(to top right, #66A1F3, #22C9A6);
-          background-size: 200% auto;
-          border-radius: 20px;
-          margin-bottom: 0px;
-          box-shadow:0 0 0 2px rgba(255, 255, 255, 0.1);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          font-weight: normal;
-          font-size: 0.5rem; /* Reduced font size */
+          font-size: 0.7rem; /* Increased font size */
           text-align: center;
           padding: 2px; /* Reduced padding */
           transform-style: preserve-3d;
@@ -342,9 +184,9 @@ function App() {
           background-color: white;
           color: black;
           transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
-          font-size: 0.7rem;
-          padding: 4px 8px; /* Reduced padding */
-          height: 28px; /* Reduced height */
+          font-size: 0.7rem; /* Re-added font-size */
+          padding: 4px 8px; /* Re-added padding */
+          height: 28px; /* Re-added height */
         }
         .join-waitlist-button:hover {
           background-color:rgb(0, 21, 156);
@@ -358,6 +200,61 @@ function App() {
           top: 2px !important;
           right: 2px !important;
         }
+        .liquid-glass-icon-bg { /* Adjusted width and height of the background box */
+          width: 45px;
+          height: 45px;
+          background: linear-gradient(to bottom right, rgba(220, 220, 220, 0.2), rgba(192, 192, 192, 0.15)); /* Silver gradient */
+          backdrop-filter: blur(5px); /* Increased blur */
+        }
+        .liquid-glass-icon-bg svg {
+          width: 20px; /* Changed SVG icon size to 20px */
+          height: 20px; /* Changed SVG icon size to 20px */
+        }
+        .music-component-outer {
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          transform: translateX(0);
+          z-index: 20;
+          padding: 5px;
+          display: flex;
+          align-items: center;
+          border-radius: 0.5rem;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+          overflow: hidden;
+          background: transparent; /* Removed background color */
+          transition: width 0.3s ease-in-out;
+          width: 40px; /* Compacted width */
+          height: 40px; /* Retained height */
+          justify-content: center; /* Center the single button */
+        }
+        .music-component-outer:hover {
+          width: 40px; /* Stays compact on hover */
+          justify-content: center;
+        }
+        .playback-controls-container {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem; /* Only gap will apply to the single button */
+          width: auto;
+          opacity: 1;
+          overflow: visible;
+          transition: none;
+          flex-shrink: 0;
+          margin-left: 0;
+          background: transparent;
+        }
+        /* New CSS for fixed top-left logo */
+        .top-left-logo {
+          position: fixed;
+          top: 20px;
+          left: 20px;
+          width: 60px; /* Adjust as needed */
+          height: auto;
+          z-index: 30; /* Ensures it stays on top of other content */
+        }
+        /* Music placeholder is removed */
       `}</style>
 
       {/* Main Container */}
@@ -367,7 +264,7 @@ function App() {
 
         {/* Logo at the top-left corner */}
         <img
-          src="/Logo.png"
+          src="https://placehold.co/60x60/000000/FFFFFF?text=LOGO" // Placeholder for logo, updated to 60x60
           alt="Company Logo"
           className="top-left-logo"
           loading="lazy"
@@ -382,7 +279,7 @@ function App() {
             Build What’s Next
           </div>
 
-          <div className="glass-box-gradient-bg rounded-2xl pt-6 pb-10 px-6 sm:px-12 md:px-20 max-w-2xl w-full text-center">
+          <div className="glass-box-gradient-bg rounded-2xl pt-6 pb-10 px-6 sm:px-12 md:px-20 max-w-lg w-full text-center">
             <p className="text-3xl md:text-4xl font-medium mb-1 gradient-text-subheading">
               Join Our Waitlist!
             </p>
@@ -392,11 +289,11 @@ function App() {
 
             {isSubscribed ? (
               <div className="bg-green-500 bg-opacity-70 text-white p-4 rounded-xl shadow-md success-animation">
-                <p className="text-xl font-semibold mb-2">You're on the list! 🎉</p>
-                <p className="text-base">We'll notify you as soon as we're ready. Stay tuned!</p>
+                <p className="text-xl font-semibold mb-2">Thank You 🎉</p>
+                <p className="text-base">We'll notify you as soon as we're ready. </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:gap-2">
                 <label htmlFor="waitlist-email" className="sr-only">Email address for waitlist</label>
                 <input
                   id="waitlist-email"
@@ -404,9 +301,10 @@ function App() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={handleEmailChange}
-                  className="w-full sm:w-56 px-4 py-2 h-10 rounded-lg bg-black bg-opacity-30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-300"
+                  className="w-full sm:w-48 px-4 py-2 h-10 rounded-md bg-black text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition duration-300"
                   required
                   aria-label="Email address for waitlist"
+                  // Re-added inline style for original size after previous reduction
                   style={{
                     fontSize: '0.7rem',
                     padding: '4px 8px',
@@ -415,7 +313,7 @@ function App() {
                 />
                 <button
                   type="submit"
-                  className="w-full sm:w-32 font-bold py-2 px-4 h-10 rounded-lg shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed join-waitlist-button"
+                  className="w-full sm:w-24 font-bold py-1 px-3 h-8 rounded-md shadow-lg transform hover:scale-105 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-opacity-75 disabled:opacity-50 disabled:cursor-not-allowed join-waitlist-button"
                   disabled={isLoading}
                   aria-busy={isLoading}
                 >
@@ -444,49 +342,22 @@ function App() {
           </div>
         </main>
 
-        {/* Music Playlist Component with slide-in controls */}
+        {/* Music Mute/Unmute Component */}
         <div className="music-component-outer group">
-          {/* Playlist Image */}
-          <div className="playlist-image-wrapper">
-            <a
-              aria-label="YouTube Music Playlist Cover"
-              className="block w-full h-full cursor-default"
-            >
-              <img
-                src={playlistCoverImage}
-                alt="YouTube Music Playlist Cover"
-                className="w-full h-full object-fit-cover rounded-lg"
-                onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/100x100/FF0000/FFFFFF?text=YTM'; }}
-                loading="lazy"
-              />
-            </a>
-          </div>
-
-          {/* Playback Controls Container - slides in from the right */}
           <div className="playback-controls-container">
-            {/* Backward Button */}
-            <button onClick={handlePrevTrack} aria-label="Previous track">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M15.41 16.59L10.83 12L15.41 7.41L14 6L8 12L14 18L15.41 16.59Z"/>
-              </svg>
-            </button>
-            {/* Play/Pause Button */}
-            <button onClick={togglePlayPause} aria-label={isPlaying ? "Pause music" : "Play music"}>
+            {/* Mute/Unmute Button */}
+            <button onClick={toggleMuteUnmute} aria-label={isPlaying ? "Mute music" : "Unmute music"}>
               {isPlaying ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 24 24">
-                  <path d="M6 4H10V20H6V4ZM14 4H18V20H14V4Z"/>
+                // Speaker high volume (unmuted)
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                  <path d="M3 9V15H7L12 20V4L7 9H3ZM16.5 12C16.5 10.23 15.54 8.71 14 7.97V16.03C15.54 15.29 16.5 13.77 16.5 12ZM14 3.23V5.27C17.26 6.58 19.5 9.17 19.5 12C19.5 14.83 17.26 17.42 14 18.73V20.77C18.39 19.4 21.5 16.02 21.5 12C21.5 7.98 18.39 4.6 14 3.23Z"/>
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="white" viewBox="0 0 24 24">
-                  <path d="M8 5V19L19 12L8 5Z"/>
+                // Speaker muted
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
+                  <path d="M16.5 12C16.5 10.23 15.54 8.71 14 7.97V10.18L16.29 12.47C16.43 12.32 16.5 12.16 16.5 12ZM14 3.23V5.27C17.26 6.58 19.5 9.17 19.5 12C19.5 12.56 19.39 13.09 19.18 13.58L20.82 15.22C21.43 14.28 21.8 13.19 21.8 12C21.8 7.98 18.69 4.6 14.3 3.23L14 3.23ZM2.84 1.84L1.43 3.25L5.7 7.52L5.7 4L1.7 4V10H3.3L1.43 11.87L0 13.29L3.71 17H7L12 22V12.28L16.29 16.57L18.43 18.71L19.84 20.12L21.25 18.71L16.5 13.96L14.77 12.23L12.7 10.16L10.5 7.96L8.29 5.75L2.84 1.84Z"/>
                 </svg>
               )}
-            </button>
-            {/* Forward Button */}
-            <button onClick={handleNextTrack} aria-label="Next track">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="white" viewBox="0 0 24 24">
-                <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
-              </svg>
             </button>
           </div>
         </div>
