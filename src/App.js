@@ -58,36 +58,41 @@ function App() {
 
   // Handles the submission of the waitlist form
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setMessage('');
+  e.preventDefault();
+  setIsLoading(true);
+  setMessage('');
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setMessage('Please enter a valid email address.');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      // Attempt to create a new record
-      await pb.collection('waitlist').create({ email });
-
-      setMessage("Thanks for your interest! We'll keep you updated.");
-      setEmail('');
-      setIsSubscribed(true);
-    } catch (error) {
-      console.error(error);
-      if (error?.data?.email?.message?.includes('unique')) {
-        setMessage('This email is already registered.');
-      } else {
-        setMessage('Oops! Something went wrong.');
-      }
-    }
-
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    setMessage('Please enter a valid email address.');
     setIsLoading(false);
-  };
+    return;
+  }
 
+  try {
+    // Optional: Check if email already exists
+    await pb.collection('waitlist').getFirstListItem(`email="${email}"`);
+    setMessage('This email is already registered.');
+  } catch (err) {
+    if (err?.status === 404) {
+      // Email not found, safe to create
+      try {
+        await pb.collection('waitlist').create({ email });
+        setMessage("Thanks for your interest! We'll keep you updated.");
+        setEmail('');
+        setIsSubscribed(true);
+      } catch (creationErr) {
+        console.error(creationErr);
+        setMessage('Oops! Something went wrong while adding you.');
+      }
+    } else {
+      console.error(err);
+      setMessage('Something went wrong while checking your email.');
+    }
+  }
+
+  setIsLoading(false);
+};
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
     if (message) setMessage('');
