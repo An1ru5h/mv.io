@@ -62,11 +62,6 @@ function App() {
     setIsLoading(true);
     setMessage('');
 
-    if (!email.includes('@')) {
-      setMessage('Please enter a valid email.');
-      setIsLoading(false);
-      return;
-    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setMessage('Please enter a valid email address.');
@@ -75,35 +70,19 @@ function App() {
     }
 
     try {
-      // 1. Check if the email already exists
-      await pb.collection('waitlist').getFirstListItem(`email=\"${email}\"`);
-      setMessage('This email is already registered.');
-      setIsLoading(false);
-      return;
-    } catch (err) {
-      if (err.status !== 404) {
-        console.error('❌ Error checking email:', err);
-        setMessage('Something went wrong.');
-        setIsLoading(false);
-        return;
-      }
-      // 404 means email doesn't exist — safe to add
-    }
-
-    try {
-      // 2. Create a new record
+      // Attempt to create a new record
       await pb.collection('waitlist').create({ email });
+
       setMessage("Thanks for your interest! We'll keep you updated.");
       setEmail('');
       setIsSubscribed(true);
-      confetti({
-        particleCount: 120,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-    } catch (err) {
-      console.error('❌ Error creating record:', err);
-      setMessage('Error adding to waitlist.');
+    } catch (error) {
+      console.error(error);
+      if (error?.data?.email?.message?.includes('unique')) {
+        setMessage('This email is already registered.');
+      } else {
+        setMessage('Oops! Something went wrong.');
+      }
     }
 
     setIsLoading(false);
