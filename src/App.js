@@ -264,7 +264,7 @@ function App() {
 
         {/* Logo at the top-left corner */}
         <img
-          src="https://placehold.co/60x60/000000/FFFFFF?text=LOGO" // Placeholder for logo, updated to 60x60
+          src="/Logo.png" // Placeholder for logo, updated to 60x60
           alt="Company Logo"
           className="top-left-logo"
           loading="lazy"
