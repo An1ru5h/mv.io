@@ -61,7 +61,7 @@ function App() {
     e.preventDefault();
     setIsLoading(true);
     setMessage('');
-x
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setMessage('Please enter a valid email address.');
