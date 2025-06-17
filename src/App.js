@@ -250,7 +250,7 @@ function App() {
           position: fixed;
           top: 20px;
           left: 20px;
-          width: 60px; /* Adjust as needed */
+          width: 40px; /* Adjust as needed */
           height: auto;
           z-index: 30; /* Ensures it stays on top of other content */
         }
